@@ -3,21 +3,33 @@
 	angular.module('home')
 		.factory('Home', Home);
 
-	function Home(ConfiguredRestangular) {
+	function Home(ConfiguredRestangular, $http) {
 		return {
-			uploadFile: uploadFile
+			getIps: getIps,
+            validateWord: validateWord,
+            saveWord: saveWord
 		};
- 
 		           
-		function uploadFile(files) {
-			var formData = new FormData();
-			angular.forEach(files,function(obj){
-                formData.append('file', obj.lfFile);
-            });
-			
-			return ConfiguredRestangular.all('uploads')
-				.withHttpConfig({transformRequest: angular.identity})
-				.customPOST(formData, undefined, undefined, {'Content-Type': undefined });
+		function getIps() {
+			return ConfiguredRestangular.all('workers').getList();
 		}
+        
+        function validateWord(ip, word) {
+            return $http({
+                method: 'POST',
+                url: ip + '/api/validation/word',
+                data: JSON.stringify({word : word}),
+                headers: {'Content-Type': 'application/json'}
+            });
+        }
+        
+        function saveWord(wordData) {
+            return $http({
+                method: 'POST',
+                url: '/api/words',
+                data: JSON.stringify(wordData),
+                headers: {'Content-Type': 'application/json'}
+            });
+        }
 	}
 })();

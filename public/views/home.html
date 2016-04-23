@@ -11,9 +11,10 @@
     </md-input-container>
     <form name="fileForm" enctype="multipart/form-data"  ng-show="selected == 'file'">
        <md-input-container class="md-block" class="md-padding">
-        <lf-ng-md-file-input lf-files='files' lf-required lf-maxcount="1" lf-mimetype="text/plain"> </lf-ng-md-file-input>
+        
+            <input type="file" id="input" />
         </md-input-container> 
-        <md-button class="md-raised md-primary" ng-click="onSubmit()">
+        <md-button class="md-raised md-primary" ng-click="onSubmit('kotichek')">
                     Upload
         </md-button>
     </form>

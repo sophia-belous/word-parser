@@ -1,8 +1,12 @@
 (function() {
 	'use strict';
-	angular.module('app').config(appConfig);
+	angular.module('app').config(appConfig)
+                        .value('workers', [])
+                        .run(appRun)
+                        ;
 	
-	function appConfig($stateProvider, $locationProvider, RestangularProvider) {
+	function appConfig($stateProvider, $locationProvider, RestangularProvider, $httpProvider) {
+        
 		RestangularProvider.setBaseUrl('/api');
         $stateProvider
                 .state('home', {
@@ -11,6 +15,16 @@
                     controller: 'HomeController'
                 })
                 ;
+                
+        $httpProvider.defaults.headers.post = {};  
         $locationProvider.html5Mode(true);       
 	}
+    
+    function appRun(Home, workers) {
+        Home.getIps().then(function(ips) {
+            ips.forEach(function(ip) {
+                workers.push(ip);
+            });
+		});
+    }
 })();
