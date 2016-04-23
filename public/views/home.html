@@ -1,1 +1,21 @@
-<md-content class="md-padding">{{testline}}</md-content>
+<div layout-padding>
+    <md-content class="md-padding" md-whiteframe="2">
+        <md-radio-group ng-model="selected">
+            <md-radio-button value="file">Файл</md-radio-button>            
+            <md-radio-button value="write">Ручной ввод</md-radio-button>
+        </md-radio-group>
+    </md-content>
+    <md-input-container ng-show="selected == 'write'" class="md-block" class="md-padding">
+        <label>Type words</label>
+        <textarea ng-model="words" rows="5" md-select-on-focus></textarea>
+    </md-input-container>
+    <form name="fileForm" enctype="multipart/form-data"  ng-show="selected == 'file'">
+       <md-input-container class="md-block" class="md-padding">
+        <lf-ng-md-file-input lf-files='files' lf-required lf-maxcount="1" lf-mimetype="text/plain"> </lf-ng-md-file-input>
+        </md-input-container> 
+        <md-button class="md-raised md-primary" ng-click="onSubmit()">
+                    Upload
+        </md-button>
+    </form>
+    
+</div>
