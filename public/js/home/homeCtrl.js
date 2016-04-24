@@ -3,23 +3,44 @@
 	angular.module('home').controller('HomeController', HomeController);
 	
 	function HomeController($scope, $rootScope, Home, workers) {
-		 $scope.testline = 'Home';
+		var wordsSeparator = ' ';
+		var chunkSize = 100;
 		 $scope.word = '';
 		
 		$scope.onSubmit = function() {
 			readAllFile();
         };
 		
+		var workersQueue = [];
+		//
+		function sendToNextFreeWorker(words) {
+			var serviceAddress = workersQueue.shift();
+			sendToWorker(words, serviceAddress);
+		}
+		
+		var nextWorkerIndex = 0;
+		//
+		function sendToNextWorker(words) {
+			var serviceAddress = workers[nextWorkerIndex++ % workers.length];
+			sendToWorker(words, serviceAddress);
+		}
+		
+		function sendToWorker(words, address) {
+			console.log(address);
+			Home.validateWord(address, words).then(function(result) {		
+				Home.saveWord(result);
+				workersQueue.push(address);
+				$rootScope.$broadcast('requestFinished', address);
+			});						
+		}
+		
 		function readAllFile() {            
             var file = document.getElementById('input').files[0];
             var fileSize = file.size;
             var startIndex = 0;
-            var chunkSize = 100;
-            var wordsSeparator = ' ';
             
             var wordsStack = [];
-            var requestsCount = 15;
-            var freeServices = [];
+            var initialRequestsCount = workers.length;
             
             var isInitial = true; 
             var chunkReading = false;        
@@ -27,9 +48,8 @@
             function onloadend(evt) {
                 if (evt.target.readyState == FileReader.DONE) {
                     var isLastChunk = (startIndex + chunkSize > fileSize) ? true : false;
-                    var textChunk = evt.target.result.replace( /\n/g, ' ');
+                    var textChunk = evt.target.result.replace( /\n/g, ' ').replace( /\r/g, '');
                     var readChunkSize = textChunk.length;
-                    var words = textChunk.split(wordsSeparator).filter(function(el) {return el.length != 0});
                     
                     if (!isLastChunk) {
                         var indexOfLastWord = textChunk.lastIndexOf(wordsSeparator);                        
@@ -39,20 +59,19 @@
                         }
                     }
                     
-                    words = textChunk.split(wordsSeparator).filter(function(el) {return el.length != 0});
-                    wordsStack = wordsStack.concat(words);
+					var words = textChunk.split(wordsSeparator).filter(function(el) {return el.length != 0});
+					console.log(words);
                     
                     startIndex += readChunkSize;
                     
-                    if (wordsStack.length < requestsCount && !isLastChunk) {
-                        readNextChunk();
-                    }
-                    else if (isInitial){
-                        isInitial = false;
-                        processWords();
-                    } else {
-                        processNextWord();
-                    }
+					if (initialRequestsCount) {
+						initialRequestsCount--;
+						sendToNextWorker(words);
+						if(initialRequestsCount)
+							readNextChunk();
+					} else {
+						sendToNextFreeWorker(words);
+					}
                 }
             };
         
@@ -66,44 +85,12 @@
                 var chunk = file.slice(startIndex, startIndex + chunkSize);
                 reader.readAsBinaryString(chunk);     
             }
-
-            function processWords() {
-                for (var i = 0; i < requestsCount; i++) {
-                    processWord(wordsStack.shift(), workers[i % workers.length]);
-                }
-                if (wordsStack.length <= 5) {
-                    readNextChunk();
-                }
-            }
-            
-            $rootScope.$on('requestFinished', onRequestFinished);
-            
-            function onRequestFinished(event, args) {
-                freeServices.push(args);
-                processNextWord();
-            }
-            
-            function processNextWord() {
-                var word = wordsStack.shift();
-                var service = freeServices.pop();
-                if (word) {
-                    if (!service) {
-                        wordsStack.push(word);
-                    } else {
-                        processWord(word, service);
-                        if (wordsStack.length == 5) {
-                            readNextChunk();
-                        }
-                    }                 
-                }
-            }
-            
-            function processWord(word, serviceAddress) {				
-				Home.validateWord(serviceAddress, word).then(function(result) {
-					Home.saveWord(result, function () {});
-                    $rootScope.$broadcast('requestFinished', serviceAddress);
-				});
-            }
+			
+			$rootScope.$on('requestFinished', onRequestFinished);
+			
+			function onRequestFinished(event, args) {
+				readNextChunk();
+			}
             
             readNextChunk();
         }

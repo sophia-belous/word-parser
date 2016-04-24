@@ -10,15 +10,22 @@ module.exports = function(app) {
     
     app.post('/api/words', function(req, res) {
         var data = req.body.data;
-        var fileName = data.status == 0 ? 'invalidWords.txt' : 'validWords.txt';
-        console.log(data.word);
-        fs.appendFile('./results/' + fileName, data.word + ' ', function (err) {
-            if (err) {
-                res.json(err);
-            }
-            res.json({ status : 'success'});
-        });
-        
+        console.log(data.words);
+        for( var i = 0; i < data.words.length; i++) {
+            (function(i) {
+                var fileName = data.words[i].status == 0 ? 'invalidWords.txt' : 'validWords.txt';
+                fs.appendFile('./results/' + fileName, data.words[i].word + ' ', function (err) {
+                    if (err) {
+                        res.json(err);
+                    }
+                    if (i === data.words.length - 1) {
+                        res.json({ status : 'success'});       
+                    }
+                });
+                
+            })(i);
+            
+        }
     });
     
     app.get('*', function(req, res) {

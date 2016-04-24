@@ -14,11 +14,11 @@
 			return ConfiguredRestangular.all('workers').getList();
 		}
         
-        function validateWord(ip, word) {
+        function validateWord(ip, words) {
             return $http({
                 method: 'POST',
                 url: ip + '/api/validation/word',
-                data: JSON.stringify({word : word}),
+                data: JSON.stringify({words : words}),
                 headers: {'Content-Type': 'application/json'}
             });
         }
