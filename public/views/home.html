@@ -5,17 +5,22 @@
             <md-radio-button value="write">Ручной ввод</md-radio-button>
         </md-radio-group>
     </md-content>
-    <md-input-container ng-show="selected == 'write'" class="md-block" class="md-padding">
-        <label>Type words</label>
-        <textarea ng-model="words" rows="5" md-select-on-focus></textarea>
-    </md-input-container>
+    <form name="textForm" ng-show="selected == 'write'">
+        <md-input-containe rclass="md-block" class="md-padding">
+            <label>Type words</label>
+            <textarea ng-model="words" rows="5" md-select-on-focus></textarea>
+        </md-input-container>
+        <md-button class="md-raised md-primary" ng-click="checkWords()">
+                    Check File
+        </md-button>
+    </form>
     <form name="fileForm" enctype="multipart/form-data"  ng-show="selected == 'file'">
        <md-input-container class="md-block" class="md-padding">
         
-            <input type="file" id="input" />
+            <input type="file" id="input" aria-label="Check"/>
         </md-input-container> 
-        <md-button class="md-raised md-primary" ng-click="onSubmit('kotichek')">
-                    Upload
+        <md-button class="md-raised md-primary" ng-click="checkFileWords()">
+                    Check File
         </md-button>
     </form>
     

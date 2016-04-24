@@ -5,10 +5,14 @@
 	function HomeController($scope, $rootScope, Home, workers) {
 		var wordsSeparator = ' ';
 		var chunkSize = 100;
-		 $scope.word = '';
+		 $scope.words = [];
 		
-		$scope.onSubmit = function() {
+		$scope.checkFileWords = function() {
 			readAllFile();
+        };
+		
+		$scope.checkWords = function() {
+			chekAllWords();
         };
 		
 		var workersQueue = [];
@@ -30,8 +34,54 @@
 			Home.validateWord(address, words).then(function(result) {		
 				Home.saveWord(result);
 				workersQueue.push(address);
-				$rootScope.$broadcast('requestFinished', address);
+				$rootScope.$broadcast('requestFinished');
 			});						
+		}
+		
+		function chekAllWords() {
+			var words = $scope.words.split(wordsSeparator).filter(function(el) {return el.length != 0}),
+				startIndex = 0,
+				wordsCount = words.length,
+				splicedWords;
+				
+			var initialRequestsCount = workers.length;
+			
+			function checkNextWords() {
+			
+				if (initialRequestsCount) {
+					initialRequestsCount--;
+					sendToNextWorker(splicedWords);
+					if(initialRequestsCount) {
+						getNextWords();
+					}
+				} else {
+					sendToNextFreeWorker(splicedWords);
+				}
+				
+			}
+			
+			function getNextWords() {
+				if (!wordsCount) {
+					$scope.words = [];
+					return;
+				}
+				
+				if (wordsCount < 20) {
+					splicedWords = words.splice(startIndex, wordsCount); 					
+				} else {
+					splicedWords = words.splice(startIndex, 20); 
+					wordsCount -= 20;
+				}
+				checkNextWords(); 
+			}
+			
+			$rootScope.$on('requestFinished', onRequestFinished);
+			
+			function onRequestFinished() {
+				getNextWords()
+			}
+			
+			getNextWords();			
 		}
 		
 		function readAllFile() {            
@@ -60,7 +110,7 @@
                     }
                     
 					var words = textChunk.split(wordsSeparator).filter(function(el) {return el.length != 0});
-					console.log(words);
+					// console.log(words);
                     
                     startIndex += readChunkSize;
                     
