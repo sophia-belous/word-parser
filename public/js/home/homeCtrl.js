@@ -41,8 +41,14 @@
 			console.log(address);
 			Home.validateWord(address, words).then(function(result) {		
 				Home.saveWord(result);
-				$scope.validWords += result.data.validWords;
-				$scope.invalidWords += result.data.invalidWords;
+				for(var i = 0; i < result.data.words.length; i++) {
+					var resultWord = result.data.words[0];
+					if(resultWord.status) {
+						$scope.validWords++;
+					} else {
+						$scope.invalidWords++;
+					}
+				}
 				workersQueue.push(address);
 				$rootScope.$broadcast('requestFinished');
 			});						
