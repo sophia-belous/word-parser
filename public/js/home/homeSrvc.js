@@ -8,7 +8,7 @@
 			getIps: getIps,
             validateWord: validateWord,
             saveWord: saveWord,
-            clearFile: clearFile
+            clearResultFile: clearResultFile
 		};
 		           
 		function getIps() {
@@ -33,7 +33,7 @@
             });
         }
         
-        function clearFile() {
+        function clearResultFile() {
             return $http({
                 method: 'DELETE',
                 url: '/api/words'

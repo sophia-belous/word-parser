@@ -7,22 +7,23 @@
 			chunkSize = 100;
 			
 		 $scope.words = [];
-		 $scope.wordsCount = 0;
 		 $scope.percent = 0;
 		 $scope.validWords = 0;
 		 $scope.invalidWords = 0;
 		
 		$scope.checkFileWords = function() {
+			Home.clearResultFile();
 			readAllFile();
         };
 		
 		$scope.checkWords = function() {
+			Home.clearResultFile();
 			readAllText();
         };
 		
-		$scope.removeCheckedWords = function() {
-			Home.clearFile();
-		};
+		// $scope.removeCheckedWords = function() {
+		// 	Home.clearResultFile();
+		// };
 		
 		var workersQueue = [];
 		function sendToNextFreeWorker(words) {
@@ -54,9 +55,10 @@
 				wordsLength = words.length,
 				splicedWords;
 				
-			$scope.percent = 0,
-			$scope.words = []
-			$scope.wordsCount = wordsCount;
+			$scope.percent = 0;
+			$scope.validWords = 0;
+			$scope.invalidWords = 0;
+			$scope.words = [];
 			
 				
 			var initialRequestsCount = workers.length;
@@ -104,6 +106,8 @@
             var fileSize = file.size;
             var startIndex = 0;
 			$scope.percent = 0;
+			$scope.validWords = 0;
+			$scope.invalidWords = 0;
 			
             
             var wordsStack = [];
