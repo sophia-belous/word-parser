@@ -10,7 +10,6 @@ module.exports = function(app) {
     
     app.post('/api/words', function(req, res) {
         var data = req.body.data;
-        console.log(data.words);
         for( var i = 0; i < data.words.length; i++) {
             (function(i) {
                 var fileName = data.words[i].status == 0 ? 'invalidWords.txt' : 'validWords.txt';
@@ -26,6 +25,11 @@ module.exports = function(app) {
             })(i);
             
         }
+    });
+    
+    app.delete('/api/words', function(req, res) {
+        fs.truncate('./results/invalidWords.txt', 0, function() { console.log('done') });
+        fs.truncate('./results/validWords.txt', 0, function() { console.log('done') });
     });
     
     app.get('*', function(req, res) {

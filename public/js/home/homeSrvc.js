@@ -7,7 +7,8 @@
 		return {
 			getIps: getIps,
             validateWord: validateWord,
-            saveWord: saveWord
+            saveWord: saveWord,
+            clearFile: clearFile
 		};
 		           
 		function getIps() {
@@ -29,6 +30,13 @@
                 url: '/api/words',
                 data: JSON.stringify(wordData),
                 headers: {'Content-Type': 'application/json'}
+            });
+        }
+        
+        function clearFile() {
+            return $http({
+                method: 'DELETE',
+                url: '/api/words'
             });
         }
 	}
