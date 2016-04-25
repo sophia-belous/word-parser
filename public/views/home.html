@@ -16,7 +16,9 @@
             </md-button>
         </form>
         <form flex="60" name="fileForm" enctype="multipart/form-data" ng-show="selected == 'file'">
-            <input name="input" class="md-button" type="file" id="input" aria-label="Check"/>
+        <label for="input" class="md-button md-raised">Choose file</label>
+        <label ng-disabled="true" class="md-button md-primary">{{txtFile.name}}</label>
+            <input  ng-hide="true" name="input" class="md-button" type="file" id="input" aria-label="Check" file-model="txtFile" ng-model="txtFile"/>
             <md-button  layout="column" class="md-raised md-primary" ng-click="checkFileWords()">
                 Check File
             </md-button>

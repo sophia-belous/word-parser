@@ -5,6 +5,7 @@
 		'ui.router',
 		'ngMaterial',
 		'ngMessages',
-        'home'
+        'home',
+		'file-model'
 	]);
 })();
