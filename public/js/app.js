@@ -5,7 +5,6 @@
 		'ui.router',
 		'ngMaterial',
 		'ngMessages',
-		'lfNgMdFileInput',
         'home'
 	]);
 })();

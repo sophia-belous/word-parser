@@ -35,14 +35,14 @@
                         <div class="md-list-item-text">
                         <h3>Words valid:</h3>
                         </div>
-                        <md-button class="md-secondary">{{validWords / (validWords + invalidWords) * 100 || 0}}%</md-button>
+                        <md-button class="md-secondary">{{validWords / (validWords + invalidWords) || 0 | percentage: 0}}</md-button>
                         <md-divider ng-if="!$last"></md-divider>
                     </md-list-item>
                     <md-list-item class="md-3-line">
                         <div class="md-list-item-text">
                         <h3>Words invalid:</h3>
                         </div>
-                        <md-button class="md-secondary">{{invalidWords / (validWords + invalidWords) * 100 || 0}}%</md-button>
+                        <md-button class="md-secondary">{{invalidWords / (validWords + invalidWords) || 0 | percentage: 0}}</md-button>
                         <md-divider ng-if="!$last"></md-divider>
                     </md-list-item>
                 </md-list>
