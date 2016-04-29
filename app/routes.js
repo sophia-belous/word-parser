@@ -9,22 +9,25 @@ module.exports = function(app) {
 	});
     
     app.post('/api/words', function(req, res) {
-        var data = req.body.data;
-        for( var i = 0; i < data.words.length; i++) {
-            (function(i) {
-                var fileName = data.words[i].status == 0 ? 'invalidWords.txt' : 'validWords.txt';
-                fs.appendFile('./results/' + fileName, data.words[i].word + ' ', function (err) {
-                    if (err) {
-                        res.json(err);
-                    }
-                    if (i === data.words.length - 1) {
-                        res.json({ status : 'success'});       
-                    }
-                });
-                
-            })(i);
+        var vWords = req.body.data.words
+                                    .filter((obj) => obj.status == 1)
+                                    .map((obj) => obj.word)
+                                    .join(' ');
+        
+        var invWords = req.body.data.words
+                                    .filter((obj) => obj.status == 0)
+                                    .map((obj) => obj.word)
+                                    .join(' ');
+        
+        fs.appendFile('./results/invalidWords.txt', invWords + ' ', function (err) {
+            if (err) res.json(err); 
             
-        }
+            fs.appendFile('./results/validWords.txt', vWords + ' ', function (err) {
+                if (err) res.json(err); 
+            
+                res.json({ status : 'success'});       
+            });
+        });
     });
     
     app.delete('/api/words', function(req, res) {

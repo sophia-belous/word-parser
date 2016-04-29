@@ -4,20 +4,20 @@
 	
 	function HomeController($scope, $rootScope, Home, workers) {
 		var wordsSeparator = ' ',
-			chunkSize = 100;
-			
+			chunkSize = 10000;
+		Home.clearResultFile();	
 		 $scope.words = [];
 		 $scope.percent = 0;
 		 $scope.validWords = 0;
 		 $scope.invalidWords = 0;
 		
 		$scope.checkFileWords = function() {
-			Home.clearResultFile();
+			// Home.clearResultFile();
 			readAllFile();
         };
 		
 		$scope.checkWords = function() {
-			Home.clearResultFile();
+			// Home.clearResultFile();
 			readAllText();
         };
 		
@@ -31,7 +31,7 @@
 			sendToWorker(words, serviceAddress);
 		}
 		
-		var nextWorkerIndex = 0;
+		var nextWorkerIndex = 1;
 		function sendToNextWorker(words) {
 			var serviceAddress = workers[nextWorkerIndex++ % workers.length];
 			sendToWorker(words, serviceAddress);
@@ -89,7 +89,8 @@
 				}
 				
 				if (wordsCount < 20) {
-					splicedWords = words.splice(startIndex, wordsCount); 					
+					splicedWords = words.splice(startIndex, wordsCount);
+					wordsCount = 0; 					
 				} else {
 					splicedWords = words.splice(startIndex, 20); 
 					wordsCount -= 20;

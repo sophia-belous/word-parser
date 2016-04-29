@@ -1,5 +1,6 @@
 var express = require('express'),
     app = express(),
+    cors = require('cors');
     bodyParser = require('body-parser'),
     methodOverride = require('method-override'),
     multer  = require('multer'),
@@ -28,7 +29,7 @@ var storage = multer.diskStorage({
 app.use(multer({    
     storage: storage
 }).single('file'));
-
+app.use(cors());
 app.use(methodOverride('X-HTTP-Method-Override')); 
 app.use(express.static(__dirname + '/public'));
 
