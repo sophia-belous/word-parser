@@ -12,18 +12,12 @@
 		 $scope.invalidWords = 0;
 		
 		$scope.checkFileWords = function() {
-			// Home.clearResultFile();
 			readAllFile();
         };
 		
 		$scope.checkWords = function() {
-			// Home.clearResultFile();
 			readAllText();
         };
-		
-		// $scope.removeCheckedWords = function() {
-		// 	Home.clearResultFile();
-		// };
 		
 		var workersQueue = [];
 		function sendToNextFreeWorker(words) {

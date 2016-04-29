@@ -31,8 +31,10 @@ module.exports = function(app) {
     });
     
     app.delete('/api/words', function(req, res) {
-        fs.truncate('./results/invalidWords.txt', 0, function() { console.log('done') });
-        fs.truncate('./results/validWords.txt', 0, function() { console.log('done') });
+        fs.truncate('./results/invalidWords.txt', 0);
+        fs.truncate('./results/validWords.txt', 0);
+        
+        res.json({status: 'delete'});
     });
     
     app.get('*', function(req, res) {
