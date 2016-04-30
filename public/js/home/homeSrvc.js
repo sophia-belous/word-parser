@@ -7,28 +7,29 @@
 		return {
 			getIps: getIps,
             validateWord: validateWord,
-            saveWord: saveWord,
-            clearResultFile: clearResultFile
+            // saveWord: saveWord,
+            clearResultFile: clearResultFile,
+            uploadFile: uploadFile
 		};
 		           
 		function getIps() {
 			return ConfiguredRestangular.all('workers').getList();
 		}
         
-        function validateWord(ip, words) {
+        function validateWord(fileName) {
             return $http({
                 method: 'POST',
-                url: ip + '/api/validation/word',
-                data: JSON.stringify({words : words}),
+                url: '/api/validation/file',
+                data: JSON.stringify({fileName : fileName}),
                 headers: {'Content-Type': 'application/json'}
             });
         }
         
-        function saveWord(wordData) {
+        function valideteInputWord(wordData) {
             return $http({
                 method: 'POST',
-                url: '/api/words',
-                data: JSON.stringify(wordData),
+                url: '/api/validation/words',
+                data: JSON.stringify({wordString: wordData}),
                 headers: {'Content-Type': 'application/json'}
             });
         }
@@ -39,5 +40,14 @@
                 url: '/api/words'
             });
         }
+        
+        function uploadFile(file) {
+			var formData = new FormData();
+			formData.append('file', file);
+			
+			return ConfiguredRestangular.all('uploads')
+				.withHttpConfig({transformRequest: angular.identity})
+				.customPOST(formData, undefined, undefined, {'Content-Type': undefined });
+		}
 	}
 })();

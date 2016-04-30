@@ -17,11 +17,10 @@
         </form>
         <form flex="60" name="fileForm" enctype="multipart/form-data" ng-show="selected == 'file'">
         <label for="input" class="md-button md-raised">Choose file</label>
-        <label ng-disabled="true" class="md-button md-primary">{{txtFile.name}}</label>
-            <input  ng-hide="true" name="input" class="md-button" type="file" id="input" aria-label="Check" file-model="txtFile" ng-model="txtFile"/>
-            <md-button  layout="column" class="md-raised md-primary" ng-click="checkFileWords()">
-                Check File
-            </md-button>
+        <label ng-disabled="true" class="md-button md-primary">{{txtFile.name}} {{progress}}</label>
+            <input ng-hide="true" name="input" class="md-button" type="file" id="input" aria-label="Check" file-model="txtFile" ng-model="txtFile"/>
+            <md-button ng-disabled="!txtFile" layout="column" class="md-raised md-primary" ng-click="uploadFile(txtFile)">Upload File</md-button>
+            <md-button ng-disabled="!fileName"  layout="column" class="md-raised md-primary" ng-click="checkFileWords()">Check File</md-button>
         </form>
         <div flex ng-if="selected"></div>
         <md-content ng-if="selected" md-whiteframe="1" flex="30">

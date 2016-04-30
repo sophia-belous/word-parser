@@ -14,6 +14,11 @@
                     templateUrl: 'views/home.html',
                     controller: 'HomeController'
                 })
+                .state('done', {
+                    url: '/done',
+                    templateUrl: 'views/done.html',
+                    controller: 'HomeController'                    
+                })
                 ;
                 
         $httpProvider.defaults.headers.post = {};  

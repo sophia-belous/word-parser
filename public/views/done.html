@@ -1,0 +1,13 @@
+<div layout="column" ng-cloak>
+    <md-toolbar class="md-warn">
+        <div class="md-toolbar-tools">
+            <h2 class="md-flex">DONE</h2>
+        </div>
+    </md-toolbar>
+    <md-content>
+        msg: {{msg}}
+        <p>recievedTroughSocket: {{recievedTroughSocket}}</p>
+        <md-button ng-click="sendWithSocket('hello server')">send something</md-button>
+    </md-content>
+    
+</div>
