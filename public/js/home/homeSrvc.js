@@ -7,9 +7,9 @@
 		return {
 			getIps: getIps,
             validateWord: validateWord,
-            // saveWord: saveWord,
             clearResultFile: clearResultFile,
-            uploadFile: uploadFile
+            uploadFile: uploadFile,
+            validateInputWord: validateInputWord
 		};
 		           
 		function getIps() {
@@ -25,7 +25,7 @@
             });
         }
         
-        function valideteInputWord(wordData) {
+        function validateInputWord(wordData) {
             return $http({
                 method: 'POST',
                 url: '/api/validation/words',

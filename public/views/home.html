@@ -1,6 +1,6 @@
 <md-toolbar class="md-primary md-hue-1">
-            <md-radio-group  layout-padding ng-model="selected"  layout="row" layout-align="center center">
-        <md-radio-button value="file">File</md-radio-button>            
+    <md-radio-group layout-padding ng-model="selected" layout="row" layout-align="center center">
+        <md-radio-button value="file">File</md-radio-button>
         <md-radio-button value="write">TextBox</md-radio-button>
     </md-radio-group>
 </md-toolbar>
@@ -12,45 +12,55 @@
                 <textarea ng-model="words" rows="5" md-select-on-focus></textarea>
             </md-input-container>
             <md-button class="md-raised md-primary" ng-click="checkWords()">
-                        Check
+                Check
             </md-button>
         </form>
         <form flex="60" name="fileForm" enctype="multipart/form-data" ng-show="selected == 'file'">
-        <label for="input" class="md-button md-raised">Choose file</label>
-        <label ng-disabled="true" class="md-button md-primary">{{txtFile.name}} {{progress}}</label>
-            <input ng-hide="true" name="input" class="md-button" type="file" id="input" aria-label="Check" file-model="txtFile" ng-model="txtFile"/>
+            <label for="input" class="md-button md-raised">Choose file</label>
+            <label ng-disabled="true" class="md-button md-primary">{{txtFile.name}} {{progress}}</label>
+            <input ng-hide="true" name="input" class="md-button" type="file" id="input" aria-label="Check" file-model="txtFile" ng-model="txtFile"
+            />
             <md-button ng-disabled="!txtFile" layout="column" class="md-raised md-primary" ng-click="uploadFile(txtFile)">Upload File</md-button>
-            <md-button ng-disabled="!fileName"  layout="column" class="md-raised md-primary" ng-click="checkFileWords()">Check File</md-button>
+            <md-button ng-disabled="!fileName" layout="column" class="md-raised md-primary" ng-click="checkFileWords()">Check File</md-button>
         </form>
         <div flex ng-if="selected"></div>
         <md-content ng-if="selected" md-whiteframe="1" flex="30">
-                <md-list>
-                    <md-list-item class="md-3-line">
-                        <div class="md-list-item-text">
+            <md-list>
+                <md-list-item class="md-3-line">
+                    <div class="md-list-item-text">
                         <h3>Words count:</h3>
-                        </div>
-                        <md-button class="md-secondary">{{validWords + invalidWords}}</md-button>
-                        <md-divider ng-if="!$last"></md-divider>
-                    </md-list-item>
-                    <md-list-item class="md-3-line">
-                        <div class="md-list-item-text">
+                    </div>
+                    <md-button class="md-secondary">{{validWords + invalidWords}}</md-button>
+                    <md-divider ng-if="!$last"></md-divider>
+                </md-list-item>
+                <md-list-item class="md-3-line">
+                    <div class="md-list-item-text">
                         <h3>Words valid:</h3>
-                        </div>
-                        <md-button class="md-secondary">{{validWords / (validWords + invalidWords) || 0 | percentage: 0}}</md-button>
-                        <md-divider ng-if="!$last"></md-divider>
-                    </md-list-item>
-                    <md-list-item class="md-3-line">
-                        <div class="md-list-item-text">
+                    </div>
+                    <md-button class="md-secondary">{{validWords / (validWords + invalidWords) || 0 | percentage: 0}}</md-button>
+                    <md-divider ng-if="!$last"></md-divider>
+                </md-list-item>
+                <md-list-item class="md-3-line">
+                    <div class="md-list-item-text">
                         <h3>Words invalid:</h3>
-                        </div>
-                        <md-button class="md-secondary">{{invalidWords / (validWords + invalidWords) || 0 | percentage: 0}}</md-button>
-                        <md-divider ng-if="!$last"></md-divider>
-                    </md-list-item>
-                </md-list>
-            </md-content>
+                    </div>
+                    <md-button class="md-secondary">{{invalidWords / (validWords + invalidWords) || 0 | percentage: 0}}</md-button>
+                    <md-divider ng-if="!$last"></md-divider>
+                </md-list-item>
+            </md-list>
+        </md-content>
     </div>
-   <div ng-if="selected">
-        <md-progress-linear md-mode="determinate" value="{{percent}}"></md-progress-linear> 
+    <div ng-if="selected">
+        <md-progress-linear md-mode="determinate" value="{{percent}}"></md-progress-linear>
+        <md-list>
+            <div class="md-list-item-text">
+                <h4>Servers:</h4>
+            </div>
+            <md-list-item class="md-1-line" ng-repeat="server in ips">
+                <md-content>{{server.hostname}}:{{server.port}} </md-content>
+                <md-divider ng-if="!$last"></md-divider>
+            </md-list-item>
+        </md-list>
         <!--<md-button ng-disabled="percent < 99" class="md-raised md-primary" ng-click="removeCheckedWords()">Clear saved results</md-button>   -->
     </div>
 </div>

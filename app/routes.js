@@ -91,14 +91,12 @@ module.exports = function (app, io) {
     });
 
     app.post('/api/validation/file', function (req, res) {
-        var fileName = req.body.fileName;
-        var initialRequestsCount = config.length;
-            var isClosed = false;
-        
+        var fileName = req.body.fileName,
+            initialRequestsCount = config.length,
+            isClosed = false;
 
         var CHUNK_SIZE = 0.08 * 1024 * 1024,
-            ii = 0;
-        buffer = new Buffer(CHUNK_SIZE),
+            buffer = new Buffer(CHUNK_SIZE),
             filePath = './public/uploads/' + fileName;
 
         fs.open(filePath, 'r', function (err, fd) {
@@ -147,27 +145,49 @@ module.exports = function (app, io) {
     })
 
     app.post('/api/validation/words', function (req, res) {
+        console.log(req.body.wordString)
         var words = req.body.wordString.split(' ').filter(function (word) { return word.length != 0 }),
             startIndex = 0,
+            initialRequestsCount = config.length,
             wordsCount = words.length,
             wordsLength = words.length,
-            splicedWords;
+            splicedWords,
+            nread = 20;
+        io.sockets.emit('wordlength', {wordsLength: wordsLength})
+
+        function checkNextWords() {
+
+            if (initialRequestsCount) {
+                initialRequestsCount--;
+                sendToNextWorker(splicedWords, nread);
+                if (initialRequestsCount) {
+                    getNextWords();
+                }
+            } else {
+                sendToNextFreeWorker(splicedWords, nread);
+            }
+            if (workersQueue.length) {
+                getNextWords();
+            }
+        }
 
         function getNextWords() {
             if (!wordsCount) {
                 return;
             }
 
-            if (wordsCount < 20) {
+            if (wordsCount < nread) {
+                nread = wordsCount;
                 splicedWords = words.splice(startIndex, wordsCount);
                 wordsCount = 0;
             } else {
-                splicedWords = words.splice(startIndex, 20);
-                wordsCount -= 20;
+                splicedWords = words.splice(startIndex, nread);
+                wordsCount -= nread;
             }
             checkNextWords();
         }
         getNextWords();
+        res.send('ok')
     });
 
     app.delete('/api/words', function (req, res) {
