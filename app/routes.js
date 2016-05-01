@@ -3,22 +3,26 @@ var path = require('path'),
     fs = require('fs'),
     http = require('http'),
     httpPost = require('http-post');
-var workersQueue = [];
 
 module.exports = function (app, io) {
     var validChunk = 0,
         invalidChunk = 0,
-        nextWorkerIndex = 0;
+        nextWorkerIndex = 0,
+
+        workersQueue = [];
+
 
     function sendToNextFreeWorker(words, nread) {
         var serviceAddress = workersQueue.shift();
-        console.log(serviceAddress)
+        console.log(workersQueue)
         sendToWorker(serviceAddress, words, nread);
+        workersQueue.push(serviceAddress);
     }
 
     function sendToNextWorker(words, nread) {
         var serviceAddress = config[nextWorkerIndex++ % config.length];
         sendToWorker(serviceAddress, words, nread);
+        workersQueue.push(serviceAddress);
     }
 
     function sendToWorker(address, words, nread) {
@@ -67,7 +71,6 @@ module.exports = function (app, io) {
                         if (err) res.json(err);
                     });
                 });
-                workersQueue.push(address);
                 io.sockets.emit('chunks', { validWords: validChunk, invalidWords: invalidChunk, progress: nread })
             })
         })
@@ -90,6 +93,8 @@ module.exports = function (app, io) {
     app.post('/api/validation/file', function (req, res) {
         var fileName = req.body.fileName;
         var initialRequestsCount = config.length;
+            var isClosed = false;
+        
 
         var CHUNK_SIZE = 0.08 * 1024 * 1024,
             ii = 0;
@@ -98,18 +103,21 @@ module.exports = function (app, io) {
 
         fs.open(filePath, 'r', function (err, fd) {
             if (err) throw err;
-            
+
             function readNextChunk() {
                 fs.read(fd, buffer, 0, CHUNK_SIZE, null, function (err, nread) {
                     if (err) throw err;
 
                     if (nread === 0) {
                         console.log('done');
-                        fs.close(fd, function (err) {
-                            if (err) throw err;
-                        });
-                        res.send("ok");
+                        if (!isClosed) {
+                            isClosed = true;
+                            fs.close(fd, function (err) {
+                                if (err) throw err;
+                            });
+                        }
                         return;
+
                     }
 
                     var data;
@@ -124,16 +132,18 @@ module.exports = function (app, io) {
                         initialRequestsCount--;
                         sendToNextWorker(words, nread);
 
-                            readNextChunk();
+                        readNextChunk();
                     } else {
-                            sendToNextFreeWorker(words, nread);
+                        sendToNextFreeWorker(words, nread);
                     }
-                            readNextChunk();                    
-
+                    if (workersQueue.length) {
+                        readNextChunk();
+                    }
                 });
             }
             readNextChunk();
         });
+        res.send("ok");
     })
 
     app.post('/api/validation/words', function (req, res) {
