@@ -283,3 +283,4 @@ $RECYCLE.BIN/
 typings
 public/libs
 .vscode/launch.json
+public/uploads

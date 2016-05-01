@@ -3,25 +3,27 @@ var path = require('path'),
     fs = require('fs'),
     http = require('http'),
     httpPost = require('http-post');
+var workersQueue = [];
 
 module.exports = function (app, io) {
-    var workersQueue = [];
-    
-    function sendToNextFreeWorker(nread, words) {
+    var validChunk = 0,
+        invalidChunk = 0,
+        nextWorkerIndex = 0;
+
+    function sendToNextFreeWorker(words, nread) {
         var serviceAddress = workersQueue.shift();
-        sendToWorker(serviceAddress, nread, words);
+        console.log(serviceAddress)
+        sendToWorker(serviceAddress, words, nread);
     }
-    
-    var nextWorkerIndex = 1;
-    function sendToNextWorker(nread, words) {
+
+    function sendToNextWorker(words, nread) {
         var serviceAddress = config[nextWorkerIndex++ % config.length];
-        sendToWorker(serviceAddress, nread, words);
+        sendToWorker(serviceAddress, words, nread);
     }
-    function sendToWorker(address, nread, words) {
-        
-        var validChunk = 0,
-            invalidChunk = 0;
-            
+
+    function sendToWorker(address, words, nread) {
+
+        console.log(address.port);
         var options = {
             hostname: address.hostname,
             port: address.port,
@@ -65,9 +67,8 @@ module.exports = function (app, io) {
                         if (err) res.json(err);
                     });
                 });
-
-                io.sockets.emit('chunks', { validWords: validChunk, invalidWords: invalidChunk, progress: nread })
                 workersQueue.push(address);
+                io.sockets.emit('chunks', { validWords: validChunk, invalidWords: invalidChunk, progress: nread })
             })
         })
     }
@@ -88,26 +89,17 @@ module.exports = function (app, io) {
 
     app.post('/api/validation/file', function (req, res) {
         var fileName = req.body.fileName;
-        var startIndex = 0;
-        var wordsStack = [];
         var initialRequestsCount = config.length;
-        
-        var isInitial = true; 
-        var chunkReading = false;
-        
 
         var CHUNK_SIZE = 0.08 * 1024 * 1024,
             ii = 0;
-            buffer = new Buffer(CHUNK_SIZE),
+        buffer = new Buffer(CHUNK_SIZE),
             filePath = './public/uploads/' + fileName;
 
         fs.open(filePath, 'r', function (err, fd) {
             if (err) throw err;
             
-            
-            readNextChunk();
-        });
-        function readNextChunk() {
+            function readNextChunk() {
                 fs.read(fd, buffer, 0, CHUNK_SIZE, null, function (err, nread) {
                     if (err) throw err;
 
@@ -127,44 +119,46 @@ module.exports = function (app, io) {
                         data = buffer.toString('utf8');
 
                     var words = data.split(' ');
-                    
+
                     if (initialRequestsCount) {
-						initialRequestsCount--;
-						sendToNextWorker(nread, words);
-						if(initialRequestsCount)
-							readNextChunk();
-					} else {
-						sendToNextFreeWorker(nread, words);
-					}
-                    // readNextChunk();
+                        initialRequestsCount--;
+                        sendToNextWorker(words, nread);
+
+                            readNextChunk();
+                    } else {
+                            sendToNextFreeWorker(words, nread);
+                    }
+                            readNextChunk();                    
 
                 });
             }
+            readNextChunk();
+        });
     })
 
-    // app.post('/api/validation/words', function (req, res) {
-    //     var words = req.body.wordString.split(' ').filter(function (word) { return word.length != 0 }),
-    //         startIndex = 0,
-    //         wordsCount = words.length,
-    //         wordsLength = words.length,
-    //         splicedWords;
+    app.post('/api/validation/words', function (req, res) {
+        var words = req.body.wordString.split(' ').filter(function (word) { return word.length != 0 }),
+            startIndex = 0,
+            wordsCount = words.length,
+            wordsLength = words.length,
+            splicedWords;
 
-    //     function getNextWords() {
-    //         if (!wordsCount) {
-    //             return;
-    //         }
+        function getNextWords() {
+            if (!wordsCount) {
+                return;
+            }
 
-    //         if (wordsCount < 20) {
-    //             splicedWords = words.splice(startIndex, wordsCount);
-    //             wordsCount = 0;
-    //         } else {
-    //             splicedWords = words.splice(startIndex, 20);
-    //             wordsCount -= 20;
-    //         }
-    //         checkNextWords();
-    //     }
-    //     getNextWords();
-    // });
+            if (wordsCount < 20) {
+                splicedWords = words.splice(startIndex, wordsCount);
+                wordsCount = 0;
+            } else {
+                splicedWords = words.splice(startIndex, 20);
+                wordsCount -= 20;
+            }
+            checkNextWords();
+        }
+        getNextWords();
+    });
 
     app.delete('/api/words', function (req, res) {
         fs.truncate('./results/invalidWords.txt', 0);
